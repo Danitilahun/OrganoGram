@@ -1,44 +1,29 @@
-import React from "react";
+import React, { useEffect, useRef } from "react";
 import TreeChart from "d3-org-chart";
 
-class OrgChartComponent extends React.Component {
-  constructor(props) {
-    super(props);
-    this.createDiagram = this.createDiagram.bind(this);
-  }
+const OrgChartComponent = ({ data }) => {
+  const chartContainerRef = useRef(null);
 
-  componentDidMount() {
-    this.createDiagram();
-  }
+  useEffect(() => {
+    const createDiagram = () => {
+      const node = chartContainerRef.current;
+      if (!data) return;
+      let chart = new TreeChart()
+        .container(node)
+        .data(data)
+        .svgWidth(500)
+        .initialZoom(0.4)
+        .onNodeClick((d) => console.log(d + " node clicked"))
+        .render();
+      return () => {
+        chart = null; // Clean up the chart instance
+      };
+    };
 
-  componentDidUpdate(prevProps, prevState) {
-    this.createDiagram();
-  }
+    createDiagram();
+  }, [data]);
 
-  render() {
-    return (
-      <div>
-        <div ref={(node) => (this.node = node)} />
-      </div>
-    );
-  }
-
-  createDiagram() {
-    const node = this.node;
-    if (!this.props.data) {
-      return;
-    }
-    if (!this.chart) {
-      this.chart = new TreeChart();
-    }
-    this.chart
-      .container(node)
-      .data(this.props.data)
-      .svgWidth(500)
-      .initialZoom(0.4)
-      .onNodeClick((d) => console.log(d + " node clicked"))
-      .render();
-  }
-}
+  return <div ref={chartContainerRef}></div>;
+};
 
 export default OrgChartComponent;
